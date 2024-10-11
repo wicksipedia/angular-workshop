@@ -1,0 +1,18 @@
+<nav class="navbar navbar-light bg-faded">
+  <div class="container-fluid">
+    <a class="navbar-brand">FireBootCamp CRM</a>
+    <ul class="navbar-nav flex-row ml-auto">
+      <li class="nav-item" [routerLinkActive]="'active'">
+        <a class="nav-link" [routerLink]="['/company/list']">Companies (<span id="company-count">{{ companyCount$ | async }}</span>)</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container px-2">
+  <router-outlet></router-outlet>
+</div>
+
+<footer>
+  Environment: {{ environment }}
+</footer>

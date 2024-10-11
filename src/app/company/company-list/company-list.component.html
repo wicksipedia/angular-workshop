@@ -1,0 +1,13 @@
+<h1>
+  Companies
+  <button class="btn btn-success float-end" [routerLink]="['/company/add']">
+    Add
+  </button>
+</h1>
+
+@defer (on timer(500ms)) {
+  <fbc-company-table
+    [companies]="(companies$ | async) || []"
+    (deleteCompanyClicked)="deleteCompany($event.id)"
+  ></fbc-company-table>
+}
