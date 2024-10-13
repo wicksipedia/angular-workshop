@@ -1,6 +1,6 @@
 export interface Company {
-  id: number;
-  name: string;
-  email: string;
-  phone: number;
+  id: number | null;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
 }

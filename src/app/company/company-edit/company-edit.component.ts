@@ -1,13 +1,21 @@
 import { Component, OnInit } from '@angular/core';
+import { JsonPipe, NgIf } from '@angular/common';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CompanyService } from '../company.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { JsonPipe, NgIf } from '@angular/common';
+import { CompanyService } from '../company.service';
+import { Company } from '../company';
+
+type CompanyFormGroup = {
+  [K in keyof Company]: FormControl<Company[K]>;
+} & {
+  checkPhone: FormControl<boolean | null>;
+};
 
 @Component({
   selector: 'fbc-company-edit',
@@ -17,35 +25,34 @@ import { JsonPipe, NgIf } from '@angular/common';
   styleUrl: './company-edit.component.scss',
 })
 export class CompanyEditComponent implements OnInit {
-  companyId: any;
   isNewCompany!: boolean;
-  companyForm!: FormGroup;
+  companyForm!: FormGroup<CompanyFormGroup>;
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private companyService: CompanyService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
   ) {}
 
   ngOnInit() {
-    this.companyId = this.activatedRoute.snapshot.params['id'];
-    this.isNewCompany = !this.companyId;
+    const companyId = +this.activatedRoute.snapshot.params['id'];
+    this.isNewCompany = !companyId;
     this.buildForm();
 
     if (!this.isNewCompany) {
-      this.getCompany();
+      this.getCompany(companyId);
     }
   }
 
   buildForm(): void {
     this.companyForm = this.fb.group({
-      name: ['', Validators.required],
-      checkPhone: [''],
-      phone: [''],
-      email: [''],
+      id: this.fb.control(0),
+      name: this.fb.control('', Validators.required),
+      checkPhone: this.fb.control(false),
+      phone: this.fb.control(''),
+      email: this.fb.control('', Validators.email),
     });
-
     this.companyForm.get('checkPhone')!.valueChanges.subscribe((value) => {
       if (value) {
         this.companyForm.get('phone')!.setValidators(Validators.required);
@@ -56,22 +63,22 @@ export class CompanyEditComponent implements OnInit {
     });
   }
 
-  getCompany(): void {
-    this.companyService
-      .getCompany(this.companyId)
-      .subscribe((company) => this.companyForm.patchValue({
+  getCompany(companyId: number): void {
+    this.companyService.getCompany(companyId).subscribe((company) =>
+      this.companyForm.patchValue({
         ...company,
         checkPhone: !!company.phone,
-      }));
+      }),
+    );
   }
 
   saveCompany(): void {
+    const company = this.companyForm.value as unknown as Company;
     if (this.isNewCompany) {
       this.companyService
-        .addCompany(this.companyForm.value)
+        .addCompany(company)
         .subscribe(() => this.router.navigate(['/company/list']));
     } else {
-      const company = { ...this.companyForm.value, id: this.companyId };
       this.companyService
         .updateCompany(company)
         .subscribe(() => this.router.navigate(['/company/list']));
