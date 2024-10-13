@@ -1,0 +1,15 @@
+ng add @ngrx/schematics@latest
+
+ng add @ngrx/store@latest
+ng add @ngrx/effects@latest
+ng add @ngrx/entity@latest
+ng add @ngrx/store-devtools@latest
+
+ng generate store State --root --module app.config.ts --state-path +state
+
+cd /src/app/+state
+
+ng g reducer Company --reducers index.ts
+ng g action Company
+
+ng g effect Company --root
